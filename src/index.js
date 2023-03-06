@@ -1,6 +1,6 @@
 import './css/styles.css';
-// import axios from 'axios';
-const axios = require('axios').default;
+import axios from 'axios';
+// const axios = require('axios').default;
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const BASE_URL = "https://pixabay.com/api/";
@@ -15,35 +15,14 @@ function onSubmite(event) {
     const imagesForSearch = event.currentTarget.elements.searchQuery.value;
     console.log(imagesForSearch);
 
-    fetchImages(imagesForSearch)
-        .then(console.log(response.json()))
-        .catch(console.error(error))
-;
+//     fetchImages(imagesForSearch)
+//         .then(response=>console.log(response.json()))
+//         // .catch(console.log(error))
+// ;
 
-    // axios.get("https://pixabay.com/api/", {
+    axios.get("https://pixabay.com/api/?key=34144660-7b9b8b2468352e1d4cb8415b4&q=dog", {
        
-    //     params: {
-    //         key:"34144660-7b9b8b2468352e1d4cb8415b4",
-    //         q: '${ imagesForSearch }',
-    //         image_type: 'photo',
-    //         orientation: 'horizontal',
-    //         safesearch: 'true',
-    //         page: '1',
-    //         per_page:'40',
-    //     },
-    //      headers: {
-    //         "Content-Type": 'aplication/JSON',
-    //         Authorization: KEY,
-    //     }
-    // },
-    // ).then(response => console.log(response.data))
-    //     .catch(error => console.error(error));
-
-    function fetchImages(imagesForSearch) {
-
-        const options = {
-    //   method:'GET',
-     parameters: {
+        params: {
             // key:"34144660-7b9b8b2468352e1d4cb8415b4",
             // q: '${ imagesForSearch }',
             image_type: 'photo',
@@ -54,20 +33,41 @@ function onSubmite(event) {
         },
          headers: {
             "Content-Type": 'aplication/JSON',
-           
+            Authorization: KEY,
         }
-}
+    },
+    ).then(response => console.log(response.data))
+        .catch(error => console.error(error));
 
-        return fetch('https://pixabay.com/api/?key=34144660-7b9b8b2468352e1d4cb8415b4&q=dog')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.status);
+//     function fetchImages(imagesForSearch) {
+
+//         const options = {
+//     //   method:'GET',
+//      parameters: {
+//             // key:"34144660-7b9b8b2468352e1d4cb8415b4",
+//             // q: '${ imagesForSearch }',
+//             image_type: 'photo',
+//             orientation: 'horizontal',
+//             safesearch: 'true',
+//             page: '1',
+//             per_page:'40',
+//         },
+//          headers: {
+//             "Content-Type": 'aplication/JSON',
+           
+//         }
+// }
+
+//         return fetch('https://pixabay.com/api/?key=34144660-7b9b8b2468352e1d4cb8415b4&q=dog')
+//             .then(response => {
+//                 if (!response.ok) {
+//                     throw new Error(response.status);
                
-                }; 
-                return response.json();
-            });   
+//                 }; 
+//                 return response.json();
+//             });   
             
-    }
+//     }
 
 
 }
