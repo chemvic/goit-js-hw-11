@@ -39,6 +39,9 @@ function onSubmite(event) {
     ).then(response => console.log(response.data))
         .catch(error => console.error(error));
 
+
+}
+
 //     function fetchImages(imagesForSearch) {
 
 //         const options = {
@@ -68,7 +71,4 @@ function onSubmite(event) {
 //             });   
             
 //     }
-
-
-}
 
