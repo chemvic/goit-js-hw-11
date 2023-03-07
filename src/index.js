@@ -6,26 +6,55 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const formEL = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
-
+const loadMoreBtn = document.querySelector('.load-more');
 formEL.addEventListener('submit', onSubmite);
+loadMoreBtn.addEventListener('click', onLoadMore);
+
+let currentPage = 1;
+let imagesForSearch = '';
+
 
 function onSubmite(event) {
-    event.preventDefault();
-    const imagesForSearch = event.currentTarget.elements.searchQuery.value;
-    if (imagesForSearch === "") { return; };
+  event.preventDefault();
+  galleryEl.innerHTML = '';
+  currentPage = 1;
+  
+  imagesForSearch = event.currentTarget.elements.searchQuery.value;
+  
+  if (imagesForSearch === "") { return; };
+  
     fetchImages(imagesForSearch)
-        .then(renderImages);
+      .then(renderImages);
+  
+  formEL.reset();
 
 }
+
+function onLoadMore(event) {
+  
+ fetchImages(imagesForSearch)
+      .then(renderImages);
+  
+}
+
 
 async function fetchImages(imagesForSearch) {
 
     const BASE_URL = "https://pixabay.com/api/";
-    const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
-    
+  const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
+  
+  console.log(currentPage);
+  console.log(imagesForSearch);
+
     try {
-        return await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=1&per_page=40`)
-          
+     const images= await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=40`)
+      currentPage += 1;
+      if (images.data.hits.lenght === 0) {
+        console.log("Sorry, there are no images matching your search query. Please try again.");
+      };
+
+      
+      return images;
         }
          catch (error) {
     console.error(error);
@@ -34,7 +63,7 @@ async function fetchImages(imagesForSearch) {
    }    
 
 function renderImages(images) {
-      galleryEl.innerHTML = "";
+     
     console.log(images);
     const markup = (images.data.hits).map(({webformatURL,tags,likes,views,comments,downloads}) => {
         return `<div class="photo-card">
@@ -63,46 +92,3 @@ function renderImages(images) {
 
     
      
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      //  async   function fetchImages(imagesForSearch) {
-         // return await fetch(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=1&per_page=40`)
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error(response.status);
-               
-        //         }; 
-        //         return response.json();
-        //     });   
-            
-
-
-
-
-       //     const options = {
-    //   method:'GET',
-    //  parameters: {
-    //         key:KEY,
-    //         q: '${ imagesForSearch }',
-    //         image_type: 'photo',
-    //         orientation: 'horizontal',
-    //         : 'true',
-    //         : '1',
-    //         :'40',
-    //     },
-    //      headers: {
-    //         "Content-Type": 'aplication/JSON',
-           
-        // }
-// }
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-
-
-
-
-
-
-
-
