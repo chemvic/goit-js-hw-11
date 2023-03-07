@@ -2,9 +2,7 @@ import './css/styles.css';
 // import axios from 'axios';
 const axios = require('axios').default;
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-
-const BASE_URL = "https://pixabay.com/api/";
-const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
+// import fetchImages from '../src/fetchImages';
 
 const formEL = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
@@ -16,15 +14,18 @@ function onSubmite(event) {
     const imagesForSearch = event.currentTarget.elements.searchQuery.value;
     if (imagesForSearch === "") { return; };
     fetchImages(imagesForSearch)
-        .then(response => console.log(response)).then(renderImages);
+        .then(renderImages);
 
 }
 
-
 async function fetchImages(imagesForSearch) {
+
+    const BASE_URL = "https://pixabay.com/api/";
+    const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
+    
     try {
         return await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=1&per_page=40`)
-            console.log(response.data);
+          
         }
          catch (error) {
     console.error(error);
@@ -34,10 +35,10 @@ async function fetchImages(imagesForSearch) {
 
 function renderImages(images) {
       galleryEl.innerHTML = "";
-    
-    const markup = images.map(({webformatURL,likes,views,comments,downloads}) => {
+    console.log(images);
+    const markup = (images.data.hits).map(({webformatURL,tags, likes,views,comments,downloads}) => {
         return `<div class="photo-card">
-  <img src="${webformatURL}" alt="${Object.values(tags).join(", ")}" loading="lazy" />
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
       <b>Likes</b>${likes}
