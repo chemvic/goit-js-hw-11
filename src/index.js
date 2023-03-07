@@ -36,7 +36,7 @@ async function fetchImages(imagesForSearch) {
 function renderImages(images) {
       galleryEl.innerHTML = "";
     console.log(images);
-    const markup = (images.data.hits).map(({webformatURL,tags, likes,views,comments,downloads}) => {
+    const markup = (images.data.hits).map(({webformatURL,tags,likes,views,comments,downloads}) => {
         return `<div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
