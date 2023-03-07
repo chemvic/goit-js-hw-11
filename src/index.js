@@ -7,18 +7,17 @@ const BASE_URL = "https://pixabay.com/api/";
 const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
 
 const formEL = document.querySelector('#search-form');
+const galleryEl = document.querySelector('.gallery');
 
 formEL.addEventListener('submit', onSubmite);
 
 function onSubmite(event) {
     event.preventDefault();
     const imagesForSearch = event.currentTarget.elements.searchQuery.value;
-    
+    if (imagesForSearch === "") { return; };
     fetchImages(imagesForSearch)
-        .then(response => console.log(response));
-       
+        .then(response => console.log(response)).then(renderImages);
 
-    
 }
 
 
@@ -33,6 +32,33 @@ async function fetchImages(imagesForSearch) {
 
    }    
 
+function renderImages(images) {
+      galleryEl.innerHTML = "";
+    
+    const markup = images.map(({webformatURL,likes,views,comments,downloads}) => {
+        return `<div class="photo-card">
+  <img src="${webformatURL}" alt="${Object.values(tags).join(", ")}" loading="lazy" />
+  <div class="info">
+    <p class="info-item">
+      <b>Likes</b>${likes}
+    </p>
+    <p class="info-item">
+      <b>Views</b>${views}
+    </p>
+    <p class="info-item">
+      <b>Comments</b>${comments}
+    </p>
+    <p class="info-item">
+      <b>Downloads</b>${downloads}
+    </p>
+  </div>
+</div>`
+    }).join("");
+    
+ 
+    galleryEl.insertAdjacentHTML('beforeend', markup);
+
+   }
 
     
      
