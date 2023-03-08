@@ -12,21 +12,26 @@ loadMoreBtn.addEventListener('click', onLoadMore);
 
 let currentPage = 1;
 let imagesForSearch = '';
-
+let fetchedCards = 0;
 
 function onSubmite(event) {
   event.preventDefault();
   galleryEl.innerHTML = '';
   currentPage = 1;
-  
+  fetchedCards = 0;
+ 
+
   imagesForSearch = event.currentTarget.elements.searchQuery.value;
   
   if (imagesForSearch === "") { hideButton(); return; };
   
     fetchImages(imagesForSearch)
       .then(renderImages);
-  showButton();
+  
+  
   formEL.reset();
+  showButton();
+  
   
 }
 
@@ -49,11 +54,21 @@ async function fetchImages(imagesForSearch) {
     try {
      const images= await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=40`)
       currentPage += 1;
-     
-      // if (images.data.hits.lenght === 0) {
-      //   console.log("Sorry, there are no images matching your search query. Please try again.");
-      // };
-// images.data.totalHits
+
+     if ((images.data.hits).length === 0) {
+        Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+       return;
+      };
+
+    fetchedCards += (images.data.hits).length;
+      console.log(fetchedCards);
+      
+      if (fetchedCards===images.data.totalHits) {
+        Notify.info("We're sorry, but you've reached the end of search results.");
+      hideButton();
+      }
+      
+
       
       return images;
         }
@@ -64,11 +79,13 @@ async function fetchImages(imagesForSearch) {
    }    
 
 function renderImages(images) {
-//  let hits = 0;
-//       hits += Number(images.data.hits);
-//   console.log(Number(images.data.hits));
+
+ 
   
-    console.log(images);
+  
+  console.log(images);
+  // console.log(images.data.totalHits);
+  // console.log(images.data.hits);
     const markup = (images.data.hits).map(({webformatURL,largeImageURL,tags,likes,views,comments,downloads}) => {
         return `<div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
