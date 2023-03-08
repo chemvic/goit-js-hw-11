@@ -21,13 +21,13 @@ function onSubmite(event) {
   
   imagesForSearch = event.currentTarget.elements.searchQuery.value;
   
-  if (imagesForSearch === "") { return; };
+  if (imagesForSearch === "") { hideButton(); return; };
   
     fetchImages(imagesForSearch)
       .then(renderImages);
-  
+  showButton();
   formEL.reset();
-
+  
 }
 
 function onLoadMore(event) {
@@ -42,17 +42,18 @@ async function fetchImages(imagesForSearch) {
 
     const BASE_URL = "https://pixabay.com/api/";
   const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
-  
+ 
   console.log(currentPage);
   console.log(imagesForSearch);
 
     try {
      const images= await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=40`)
       currentPage += 1;
-      if (images.data.hits.lenght === 0) {
-        console.log("Sorry, there are no images matching your search query. Please try again.");
-      };
-
+     
+      // if (images.data.hits.lenght === 0) {
+      //   console.log("Sorry, there are no images matching your search query. Please try again.");
+      // };
+// images.data.totalHits
       
       return images;
         }
@@ -63,9 +64,12 @@ async function fetchImages(imagesForSearch) {
    }    
 
 function renderImages(images) {
-     
+//  let hits = 0;
+//       hits += Number(images.data.hits);
+//   console.log(Number(images.data.hits));
+  
     console.log(images);
-    const markup = (images.data.hits).map(({webformatURL,tags,likes,views,comments,downloads}) => {
+    const markup = (images.data.hits).map(({webformatURL,largeImageURL,tags,likes,views,comments,downloads}) => {
         return `<div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
@@ -90,5 +94,11 @@ function renderImages(images) {
 
    }
 
-    
+function hideButton() {
+  loadMoreBtn.classList.add('is-hidden');
+};
+
+function showButton() {
+  loadMoreBtn.classList.remove('is-hidden');
+};
      

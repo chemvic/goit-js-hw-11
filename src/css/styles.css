@@ -32,6 +32,10 @@ background-color: rgb(48, 123, 184);
 border-radius: 4px;
 }
 
+.load-more.is-hidden{
+  display: none;
+}
+
 .gallery {
   display: flex;
   flex-wrap: wrap;
@@ -60,12 +64,12 @@ flex-basis: calc((100% - 50px) / 5);
 .info-item {
   display: flex;
   flex-direction: column;
+  font-size: 14px;
 }
 
 img {
   display: block;
   max-width: 100%;
-  /* height: 230px;
-  width:345px; */
+  height: auto;
   object-fit: cover;
 }
