@@ -2,8 +2,8 @@ import './css/styles.css';
 // import axios from 'axios';
 const axios = require('axios').default;
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-// import SimpleLightbox from "simplelightbox"; 
-// import SimpleLightbox from "simplelightbox/dist/simple-lightbox.esm";
+import SimpleLightbox from "simplelightbox"; 
+import "simplelightbox/dist/simple-lightbox.min.css";
 // import fetchImages from '../src/fetchImages';
 
 const formEL = document.querySelector('#search-form');
@@ -119,11 +119,13 @@ async function renderImages(images) {
  
   galleryEl.insertAdjacentHTML('beforeend', markup);
   
+  let lightbox = new SimpleLightbox('.gallery__item');
+  lightbox.refresh();
+  
  if (availableCards&&fetchedCards!==availableCards) {
   await  showButton();
   }
    }
-let lightbox = new SimpleLightbox('.gallery__item');
 
 function hideButton() {
   loadMoreBtn.classList.add('is-hidden');
