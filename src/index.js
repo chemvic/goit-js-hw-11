@@ -2,6 +2,8 @@ import './css/styles.css';
 // import axios from 'axios';
 const axios = require('axios').default;
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+// import SimpleLightbox from "simplelightbox"; 
+// import SimpleLightbox from "simplelightbox/dist/simple-lightbox.esm";
 // import fetchImages from '../src/fetchImages';
 
 const formEL = document.querySelector('#search-form');
@@ -13,26 +15,31 @@ loadMoreBtn.addEventListener('click', onLoadMore);
 let currentPage = 1;
 let imagesForSearch = '';
 let fetchedCards = 0;
+let availableCards = 0;
+
 
 function onSubmite(event) {
   event.preventDefault();
   galleryEl.innerHTML = '';
   currentPage = 1;
   fetchedCards = 0;
- 
+  availableCards = 0;
 
   imagesForSearch = event.currentTarget.elements.searchQuery.value;
   
   if (imagesForSearch === "") { hideButton(); return; };
   
     fetchImages(imagesForSearch)
-      .then(renderImages);
+      .then( renderImages);
   
-  
+ 
+  if (availableCards) {
+    showButton();
+  }
   formEL.reset();
-  showButton();
+
   
-  
+    
 }
 
 function onLoadMore(event) {
@@ -47,23 +54,27 @@ async function fetchImages(imagesForSearch) {
 
     const BASE_URL = "https://pixabay.com/api/";
   const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
- 
+  
   console.log(currentPage);
   console.log(imagesForSearch);
 
     try {
      const images= await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=40`)
-      currentPage += 1;
-
+      
+availableCards = images.data.totalHits;
      if ((images.data.hits).length === 0) {
         Notify.failure("Sorry, there are no images matching your search query. Please try again.");
        return;
       };
 
-    fetchedCards += (images.data.hits).length;
+       if (availableCards&&currentPage===1) {
+    Notify.success(`Hooray! We found ${availableCards} images.`);
+  }
+      currentPage += 1;
+      fetchedCards += (images.data.hits).length;
       console.log(fetchedCards);
       
-      if (fetchedCards===images.data.totalHits) {
+      if (fetchedCards===availableCards) {
         Notify.info("We're sorry, but you've reached the end of search results.");
       hideButton();
       }
@@ -78,38 +89,41 @@ async function fetchImages(imagesForSearch) {
 
    }    
 
-function renderImages(images) {
+async function renderImages(images) {
 
  
   
   
   console.log(images);
-  // console.log(images.data.totalHits);
-  // console.log(images.data.hits);
+ 
     const markup = (images.data.hits).map(({webformatURL,largeImageURL,tags,likes,views,comments,downloads}) => {
-        return `<div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+        return `<div class="gallery__item"><a class="gallery__item" href="${largeImageURL}"><img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" /></a>
+  
   <div class="info">
     <p class="info-item">
-      <b>Likes</b>${likes}
+      <b>Likes</b><span>${likes}</span>
     </p>
     <p class="info-item">
-      <b>Views</b>${views}
+      <b>Views</b><span>${views}</span>
     </p>
     <p class="info-item">
-      <b>Comments</b>${comments}
+      <b>Comments</b><span>${comments}</span>
     </p>
     <p class="info-item">
-      <b>Downloads</b>${downloads}
+      <b>Downloads</b><span>${downloads}</span>
     </p>
   </div>
 </div>`
     }).join("");
     
  
-    galleryEl.insertAdjacentHTML('beforeend', markup);
-
+  galleryEl.insertAdjacentHTML('beforeend', markup);
+  
+ if (availableCards&&fetchedCards!==availableCards) {
+  await  showButton();
+  }
    }
+let lightbox = new SimpleLightbox('.gallery__item');
 
 function hideButton() {
   loadMoreBtn.classList.add('is-hidden');
