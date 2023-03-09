@@ -1,5 +1,6 @@
 import './css/styles.css';
 // import axios from 'axios';
+import throttle  from 'lodash.throttle';
 const axios = require('axios').default;
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from "simplelightbox"; 
@@ -130,13 +131,13 @@ availableCards = images.data.totalHits;
    
   //  Добавляем прослушиватель на бесконечній скролл
    
-   window.addEventListener('scroll', () => {
+   window.addEventListener('scroll', throttle(() => {
   const documentRect = document.documentElement.getBoundingClientRect();
 
   if (documentRect.bottom <document.documentElement.clientHeight + 200) {
     onLoadMore();
   }
-   });
+   },2300));
    
   }
    }
