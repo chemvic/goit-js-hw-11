@@ -11,6 +11,7 @@ const galleryEl = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 formEL.addEventListener('submit', onSubmite);
 loadMoreBtn.addEventListener('click', onLoadMore);
+// document.addEventListener('keydown', onEscKeyPress);
 
 let currentPage = 1;
 let imagesForSearch = '';
@@ -18,27 +19,29 @@ let fetchedCards = 0;
 let availableCards = 0;
 
 
+// const { height: cardHeight } = document
+//   .querySelector(".gallery")
+//   .firstElementChild.getBoundingClientRect();
+
+// window.scrollBy({
+//   top: cardHeight * 2,
+//   behavior: "smooth",
+// });
+
 function onSubmite(event) {
   event.preventDefault();
-  galleryEl.innerHTML = '';
-  currentPage = 1;
-  fetchedCards = 0;
-  availableCards = 0;
+
+  resetOn();
+
 
   imagesForSearch = event.currentTarget.elements.searchQuery.value;
   
-  if (imagesForSearch === "") { hideButton(); return; };
+  if (imagesForSearch.trim() === "") { hideButton();formEL.reset(); return; };
   
     fetchImages(imagesForSearch)
       .then( renderImages);
   
- 
-  if (availableCards) {
-    showButton();
-  }
-  formEL.reset();
-
-  
+  formEL.reset(); 
     
 }
 
@@ -55,10 +58,7 @@ async function fetchImages(imagesForSearch) {
     const BASE_URL = "https://pixabay.com/api/";
   const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
   
-  console.log(currentPage);
-  console.log(imagesForSearch);
-
-    try {
+     try {
      const images= await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=40`)
       
 availableCards = images.data.totalHits;
@@ -72,32 +72,36 @@ availableCards = images.data.totalHits;
   }
       currentPage += 1;
       fetchedCards += (images.data.hits).length;
-      console.log(fetchedCards);
+      
       
       if (fetchedCards===availableCards) {
         Notify.info("We're sorry, but you've reached the end of search results.");
-      hideButton();
-      }
-      
+        // hideButton();
 
-      
-      return images;
+        // Убираем бесконечный скролл
+
+          window.removeEventListener('scroll', () => {
+  const documentRect = document.documentElement.getBoundingClientRect();
+
+  if (documentRect.bottom <document.documentElement.clientHeight + 200) {
+    onLoadMore();
+  }
+   });
+        
+      }     
+         return images;
         }
          catch (error) {
     console.error(error);
   }
 
-   }    
+}   
+   
 
-async function renderImages(images) {
-
- 
-  
-  
-  console.log(images);
+ function renderImages(images) {
  
     const markup = (images.data.hits).map(({webformatURL,largeImageURL,tags,likes,views,comments,downloads}) => {
-        return `<div class="gallery__item"><a class="gallery__item" href="${largeImageURL}"><img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" /></a>
+        return `<div class="photo-card"><a class="gallery__item" href="${largeImageURL}"><img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" /></a>
   
   <div class="info">
     <p class="info-item">
@@ -114,8 +118,7 @@ async function renderImages(images) {
     </p>
   </div>
 </div>`
-    }).join("");
-    
+    }).join("");    
  
   galleryEl.insertAdjacentHTML('beforeend', markup);
   
@@ -123,9 +126,31 @@ async function renderImages(images) {
   lightbox.refresh();
   
  if (availableCards&&fetchedCards!==availableCards) {
-  await  showButton();
+    // showButton();
+   
+  //  Добавляем прослушиватель на бесконечній скролл
+   
+   window.addEventListener('scroll', () => {
+  const documentRect = document.documentElement.getBoundingClientRect();
+
+  if (documentRect.bottom <document.documentElement.clientHeight + 200) {
+    onLoadMore();
+  }
+   });
+   
   }
    }
+
+// function onEscKeyPress(event) {
+  
+//   if (event.code === "Escape"&&!lightbox.off) {
+//     formEL.reset();
+   
+//     resetOn();
+//   }
+// }
+
+
 
 function hideButton() {
   loadMoreBtn.classList.add('is-hidden');
@@ -134,4 +159,20 @@ function hideButton() {
 function showButton() {
   loadMoreBtn.classList.remove('is-hidden');
 };
-     
+
+function resetOn() {
+   hideButton();
+  galleryEl.innerHTML = '';
+  currentPage = 1;
+  fetchedCards = 0;
+  availableCards = 0;
+};
+
+// window.addEventListener('scroll', () => {
+//   const documentRect = document.documentElement.getBoundingClientRect();
+
+//   if (documentRect.bottom <document.documentElement.clientHeight + 200) {
+//     onLoadMore();
+//   }
+
+// });
