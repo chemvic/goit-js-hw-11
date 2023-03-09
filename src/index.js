@@ -37,7 +37,10 @@ function onSubmite(event) {
 
   imagesForSearch = event.currentTarget.elements.searchQuery.value;
   
-  if (imagesForSearch.trim() === "") { hideButton();formEL.reset(); return; };
+  if (imagesForSearch.trim() === "") {
+     formEL.reset(); return;
+    // hideButton();
+  };
   
     fetchImages(imagesForSearch)
       .then( renderImages);
@@ -66,28 +69,23 @@ availableCards = images.data.totalHits;
      if ((images.data.hits).length === 0) {
         Notify.failure("Sorry, there are no images matching your search query. Please try again.");
        return;
-      };
-
+       };
+       
+       
+       
        if (availableCards&&currentPage===1) {
-    Notify.success(`Hooray! We found ${availableCards} images.`);
+         Notify.success(`Hooray! We found ${availableCards} images.`);
+          window.addEventListener('scroll',onContinue);
   }
       currentPage += 1;
-      fetchedCards += (images.data.hits).length;
+       fetchedCards += (images.data.hits).length;
       
       
       if (fetchedCards===availableCards) {
         Notify.info("We're sorry, but you've reached the end of search results.");
+        window.removeEventListener('scroll', onContinue);
+        
         // hideButton();
-
-        // Убираем бесконечный скролл
-
-          window.removeEventListener('scroll', () => {
-  const documentRect = document.documentElement.getBoundingClientRect();
-
-  if (documentRect.bottom <document.documentElement.clientHeight + 200) {
-    onLoadMore();
-  }
-   });
         
       }     
          return images;
@@ -99,10 +97,10 @@ availableCards = images.data.totalHits;
 }   
    
 
- function renderImages(images) {
+function renderImages(images) {
  
-    const markup = (images.data.hits).map(({webformatURL,largeImageURL,tags,likes,views,comments,downloads}) => {
-        return `<div class="photo-card"><a class="gallery__item" href="${largeImageURL}"><img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" /></a>
+  const markup = (images.data.hits).map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
+    return `<div class="photo-card"><a class="gallery__item" href="${largeImageURL}"><img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" /></a>
   
   <div class="info">
     <p class="info-item">
@@ -119,28 +117,42 @@ availableCards = images.data.totalHits;
     </p>
   </div>
 </div>`
-    }).join("");    
+  }).join("");
  
   galleryEl.insertAdjacentHTML('beforeend', markup);
   
   let lightbox = new SimpleLightbox('.gallery__item');
   lightbox.refresh();
-  
- if (availableCards&&fetchedCards!==availableCards) {
-    // showButton();
    
-  //  Добавляем прослушиватель на бесконечній скролл
-   
-   window.addEventListener('scroll', throttle(() => {
-  const documentRect = document.documentElement.getBoundingClientRect();
+  // Для кнопки loadMore
+  //  if (availableCards&&fetchedCards!==availableCards) {showButton();};
+}
 
-  if (documentRect.bottom <document.documentElement.clientHeight + 200) {
-    onLoadMore();
-  }
-   },2300));
+// function hideButton() {
+//   loadMoreBtn.classList.add('is-hidden');
+// };
+
+// function showButton() {
+//   loadMoreBtn.classList.remove('is-hidden');
+// };
    
-  }
-   }
+const onContinue=
+  throttle(() => {
+    const documentRect = document.documentElement.getBoundingClientRect();
+// console.log(documentRect.bottom);
+    if (documentRect.bottom < document.documentElement.clientHeight + 200) {
+      onLoadMore();
+    }
+  },1500 );
+
+function resetOn() {  
+  galleryEl.innerHTML = '';
+  currentPage = 1;
+  fetchedCards = 0;
+  availableCards = 0;
+  //  hideButton();
+}
+
 
 // function onEscKeyPress(event) {
   
@@ -150,30 +162,3 @@ availableCards = images.data.totalHits;
 //     resetOn();
 //   }
 // }
-
-
-
-function hideButton() {
-  loadMoreBtn.classList.add('is-hidden');
-};
-
-function showButton() {
-  loadMoreBtn.classList.remove('is-hidden');
-};
-
-function resetOn() {
-   hideButton();
-  galleryEl.innerHTML = '';
-  currentPage = 1;
-  fetchedCards = 0;
-  availableCards = 0;
-};
-
-// window.addEventListener('scroll', () => {
-//   const documentRect = document.documentElement.getBoundingClientRect();
-
-//   if (documentRect.bottom <document.documentElement.clientHeight + 200) {
-//     onLoadMore();
-//   }
-
-// });

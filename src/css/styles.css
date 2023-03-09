@@ -49,7 +49,7 @@ display: block;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  justify-content: center;
+  /* justify-content: center; */
   
 }
 
