@@ -56,7 +56,7 @@ display: block;
 .photo-card {
 display: flex;
 flex-direction: column;
-height: 280px;
+height: 310px;
 box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 2px 1px rgba(0, 0, 0, 0.2);
 flex-basis: calc((100% - 40px) / 4);
 /* position: relative; */
@@ -68,6 +68,7 @@ flex-basis: calc((100% - 40px) / 4);
   padding: 10px;
   border: #212121;
   border: 1px;
+  align-items: center;
 }
 
 .info-item {
@@ -76,12 +77,13 @@ flex-basis: calc((100% - 40px) / 4);
   font-size: 14px;
   justify-content: center;
   text-align: center;
+  
 }
 
 img {
   display: block;
   max-width: 100%;
-  height: 190px;
+  height: 20px;
   object-fit: cover;
 }
 .gallery__item {
@@ -95,7 +97,7 @@ img {
 }
 
 .gallery__image {
-  height: 190px;
+  height: 220px;
   width: 100%;
   object-fit: cover;
   transition: transform var(--animation-duration) var(--timing-function);

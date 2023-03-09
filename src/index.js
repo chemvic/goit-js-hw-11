@@ -140,7 +140,7 @@ const onContinue=
   throttle(() => {
     const documentRect = document.documentElement.getBoundingClientRect();
 // console.log(documentRect.bottom);
-    if (documentRect.bottom < document.documentElement.clientHeight + 200) {
+    if (documentRect.bottom < document.documentElement.clientHeight + 500) {
       onLoadMore();
     }
   },1500 );
