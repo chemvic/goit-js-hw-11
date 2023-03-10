@@ -12,29 +12,17 @@ const galleryEl = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 formEL.addEventListener('submit', onSubmite);
 loadMoreBtn.addEventListener('click', onLoadMore);
-// document.addEventListener('keydown', onEscKeyPress);
+
 
 let currentPage = 1;
 let imagesForSearch = '';
 let fetchedCards = 0;
 let availableCards = 0;
 
-
-// const { height: cardHeight } = document
-//   .querySelector(".gallery")
-//   .firstElementChild.getBoundingClientRect();
-
-// window.scrollBy({
-//   top: cardHeight * 2,
-//   behavior: "smooth",
-// });
-
 function onSubmite(event) {
   event.preventDefault();
 
   resetOn();
-
-
   imagesForSearch = event.currentTarget.elements.searchQuery.value;
   
   if (imagesForSearch.trim() === "") {
@@ -43,19 +31,16 @@ function onSubmite(event) {
   };
   
     fetchImages(imagesForSearch)
-      .then( renderImages);
+      .then(renderImages);
   
   formEL.reset(); 
     
 }
 
-function onLoadMore(event) {
-  
+function onLoadMore(event) {  
  fetchImages(imagesForSearch)
-      .then(renderImages);
-  
+      .then(renderImages);  
 }
-
 
 async function fetchImages(imagesForSearch) {
 
@@ -64,42 +49,15 @@ async function fetchImages(imagesForSearch) {
   
      try {
      const images= await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=40`)
-      
-availableCards = images.data.totalHits;
-     if ((images.data.hits).length === 0) {
-        Notify.failure("Sorry, there are no images matching your search query. Please try again.");
-       return;
-       };
-       
-       
-       
-       if (availableCards&&currentPage===1) {
-         Notify.success(`Hooray! We found ${availableCards} images.`);
-          window.addEventListener('scroll',onContinue);
-  }
-      currentPage += 1;
-       fetchedCards += (images.data.hits).length;
-      
-      
-      if (fetchedCards===availableCards) {
-        Notify.info("We're sorry, but you've reached the end of search results.");
-        window.removeEventListener('scroll', onContinue);
-        
-        // hideButton();
-        
-      }     
+         
          return images;
         }
-         catch (error) {
-    console.error(error);
-  }
+    catch (error){console.log(error)} ;
+} 
+  
 
-}   
-   
-
-function renderImages(images) {
- 
-  const markup = (images.data.hits).map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
+function drawGallery(images) {
+     const markup = (images.data.hits).map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
     return `<div class="photo-card"><a class="gallery__item" href="${largeImageURL}"><img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" /></a>
   
   <div class="info">
@@ -120,21 +78,48 @@ function renderImages(images) {
   }).join("");
  
   galleryEl.insertAdjacentHTML('beforeend', markup);
+}
+   
+
+function renderImages(images) {
+
+  availableCards = images.data.totalHits;
+     if ((images.data.hits).length === 0&&fetchedCards===0) {
+        Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+       return;
+       };      
+       
+       
+       if (availableCards&&currentPage===1) {
+         Notify.success(`Hooray! We found ${availableCards} images.`);
+          window.addEventListener('scroll',onContinue);
+  }
+      currentPage += 1;
+       fetchedCards += (images.data.hits).length;
+      
+      
+      if (fetchedCards===availableCards) {
+        Notify.info("We're sorry, but you've reached the end of search results.");
+        window.removeEventListener('scroll', onContinue);        
+        hideButton();        
+  } 
+
+  drawGallery(images);
   
   let lightbox = new SimpleLightbox('.gallery__item');
   lightbox.refresh();
    
   // Для кнопки loadMore
-  //  if (availableCards&&fetchedCards!==availableCards) {showButton();};
+   if (availableCards&&fetchedCards!==availableCards) {showButton();};
 }
 
-// function hideButton() {
-//   loadMoreBtn.classList.add('is-hidden');
-// };
+function hideButton() {
+  loadMoreBtn.classList.add('is-hidden');
+};
 
-// function showButton() {
-//   loadMoreBtn.classList.remove('is-hidden');
-// };
+function showButton() {
+  loadMoreBtn.classList.remove('is-hidden');
+};
    
 const onContinue=
   throttle(() => {
@@ -150,10 +135,10 @@ function resetOn() {
   currentPage = 1;
   fetchedCards = 0;
   availableCards = 0;
-  //  hideButton();
+   hideButton();
 }
 
-
+// document.addEventListener('keydown', onEscKeyPress);
 // function onEscKeyPress(event) {
   
 //   if (event.code === "Escape"&&!lightbox.off) {
