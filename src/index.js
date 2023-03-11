@@ -1,11 +1,10 @@
 import './css/styles.css';
 import axios from 'axios';
 import throttle  from 'lodash.throttle';
-// const axios = require('axios').default;
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from "simplelightbox"; 
 import "simplelightbox/dist/simple-lightbox.min.css";
-// import fetchImages from '../src/fetchImages';
+import ImagesFetchService from '../src/fetchService';
 
 const formEL = document.querySelector('#search-form');
 const galleryEl = document.querySelector('.gallery');
@@ -13,24 +12,20 @@ const loadMoreBtn = document.querySelector('.load-more');
 formEL.addEventListener('submit', onSubmite);
 loadMoreBtn.addEventListener('click', onLoadMore);
 
-
-let currentPage = 1;
-let imagesForSearch = '';
-let fetchedCards = 0;
-let availableCards = 0;
+const imagesFetchService = new ImagesFetchService();
 
 function onSubmite(event) {
   event.preventDefault();
 
   resetOn();
-  imagesForSearch = event.currentTarget.elements.searchQuery.value;
+  imagesFetchService.imagesForSearch = event.currentTarget.elements.searchQuery.value;
   
-  if (imagesForSearch.trim() === "") {
+  if (imagesFetchService.imagesForSearch.trim() === "") {
      formEL.reset(); return;
     // hideButton();
   };
   
-    fetchImages(imagesForSearch)
+    imagesFetchService.fetchImages()
       .then(renderImages);
   
   formEL.reset(); 
@@ -38,22 +33,11 @@ function onSubmite(event) {
 }
 
 function onLoadMore(event) {  
- fetchImages(imagesForSearch)
+ imagesFetchService.fetchImages()
       .then(renderImages);  
 }
 
-async function fetchImages(imagesForSearch) {
 
-    const BASE_URL = "https://pixabay.com/api/";
-  const KEY = "34144660-7b9b8b2468352e1d4cb8415b4";
-  
-     try {
-     const images= await axios.get(`${BASE_URL}?key=${KEY}&q=${imagesForSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}&per_page=40`)
-         
-         return images;
-        }
-    catch (error){console.log(error)} ;
-} 
   
 
 function drawGallery(images) {
@@ -81,24 +65,21 @@ function drawGallery(images) {
 }
    
 
-function renderImages(images) {
-
-  availableCards = images.data.totalHits;
-     if ((images.data.hits).length === 0&&fetchedCards===0) {
+function renderImages(images) { 
+   
+     if ((images.data.hits).length === 0&&imagesFetchService.fetchedCards===0) {
         Notify.failure("Sorry, there are no images matching your search query. Please try again.");
        return;
        };      
        
        
-       if (availableCards&&currentPage===1) {
-         Notify.success(`Hooray! We found ${availableCards} images.`);
+       if (imagesFetchService.availableCards&&imagesFetchService.currentPage===1) {
+         Notify.success(`Hooray! We found ${imagesFetchService.availableCards} images.`);
           window.addEventListener('scroll',onContinue);
   }
-      currentPage += 1;
-       fetchedCards += (images.data.hits).length;
+           
       
-      
-      if (fetchedCards===availableCards) {
+      if (imagesFetchService.fetchedCards===imagesFetchService.availableCards) {
         Notify.info("We're sorry, but you've reached the end of search results.");
         window.removeEventListener('scroll', onContinue);        
         hideButton();        
@@ -110,7 +91,7 @@ function renderImages(images) {
   lightbox.refresh();
    
   // Для кнопки loadMore
-   if (availableCards&&fetchedCards!==availableCards) {showButton();};
+   if (imagesFetchService.availableCards&&imagesFetchService.fetchedCards!==imagesFetchService.availableCards) {showButton();};
 }
 
 function hideButton() {
@@ -124,7 +105,6 @@ function showButton() {
 const onContinue=
   throttle(() => {
     const documentRect = document.documentElement.getBoundingClientRect();
-// console.log(documentRect.bottom);
     if (documentRect.bottom < document.documentElement.clientHeight + 500) {
       onLoadMore();
     }
@@ -132,18 +112,8 @@ const onContinue=
 
 function resetOn() {  
   galleryEl.innerHTML = '';
-  currentPage = 1;
-  fetchedCards = 0;
-  availableCards = 0;
+  imagesFetchService.currentPage = 0;
+  imagesFetchService.fetchedCards = 0;
+  imagesFetchService.availableCards = 0;
    hideButton();
 }
-
-// document.addEventListener('keydown', onEscKeyPress);
-// function onEscKeyPress(event) {
-  
-//   if (event.code === "Escape"&&!lightbox.off) {
-//     formEL.reset();
-   
-//     resetOn();
-//   }
-// }
