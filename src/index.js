@@ -12,13 +12,13 @@ import 'intersection-observer';
 const formEL = document.querySelector('#search-form');
 const loadMoreBtn = document.querySelector('.load-more');
 
-formEL.addEventListener('submit', onSubmite);
+formEL.addEventListener('submit', onSubmit);
 // loadMoreBtn.addEventListener('click', onLoadMore);
 
 const imagesFetchService = new ImagesFetchService();
 
 
-function onSubmite(event) {
+function onSubmit(event) {
   event.preventDefault();
 
   resetOn();
